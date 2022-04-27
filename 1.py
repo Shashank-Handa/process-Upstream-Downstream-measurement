@@ -1,21 +1,29 @@
 
-import pyshark
 import socket
-import psutil
 import sys
+
+import psutil
+import pyshark
 
 ipAddr="10.0.2.5"
 interface_name='any'
 filter_string='src host 10.0.2.5 or dst host 10.0.2.5'
 
-def get_pid(port):
+"""def get_pid(port):
     connections = psutil.net_connections()
     for con in connections:
-        if con.raddr[1] == port:
+        if con.raddr.port == port:
             return con.pid
-        elif con.laddr[1] == port:
+        if con.laddr.port == port:
             return con.pid
-    return -1
+    return -1"""
+
+def get_pid(port):
+    for process in psutil.process_iter():
+        for conns in process.connections(kind='inet'):
+            if conns.laddr.port == port:
+                return process.pid
+
 
 capture=pyshark.LiveCapture(
     bpf_filter=filter_string,

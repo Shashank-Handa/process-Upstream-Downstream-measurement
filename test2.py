@@ -1,11 +1,25 @@
 import subprocess
+from psutil import *
+
+def myFunc():
+    i=0
+    for process in process_iter():
+        
+        for conn in process.connections("all"):
+            if(conn.laddr.port==137):
+                print(process.name())
+                print(conn.laddr.port)
+        i+=1
+        if(i>10):
+            break
+    return
 
 def get_pid(port):
-    process=subprocess.Popen(["lsof","-i",":{0}".format(port)],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    stdout, stderrr = process.communicate()
-    for process in str(stdout.decode("utf-8")).split("/n")[1:]:
-        data=[x for x in process.split(" ") if x!= '']
-        if(len(data)<=1):
-            continue
-        print(data)
-        return data[0]
+    print("called")
+    for process in process_iter():
+        for conns in process.connections("all"):
+            if conns.laddr.port == port:
+                print(process.name())
+
+myFunc()
+get_pid(137)

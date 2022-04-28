@@ -2,8 +2,10 @@
 import socket
 import sys
 
-import psutil
+#import psutil
 import pyshark
+import os
+import subprocess
 
 ipAddr="10.0.2.5"
 interface_name='any'
@@ -18,11 +20,25 @@ filter_string='src host 10.0.2.5 or dst host 10.0.2.5'
             return con.pid
     return -1"""
 
-def get_pid(port):
+"""def get_pid(port):
+    print("called")
     for process in psutil.process_iter():
         for conns in process.connections(kind='inet'):
             if conns.laddr.port == port:
-                return process.pid
+                print(process.name())
+                return process.name()"""
+
+
+def get_pid(port):
+    process=subprocess.Popen(["lsof","-i",":{0}".format(port)],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    stdout, stderrr = process.communicate()
+    for process in str(stdout.decode("utf-8")).split("/n")[1:]:
+        data=[x for x in process.split(" ") if x!= '']
+        if(len(data)<=1):
+            continue
+        print(data)
+        return data[0]
+
 
 
 capture=pyshark.LiveCapture(
@@ -55,7 +71,3 @@ if(len(capture)>0):
                 downStream[packet[protocol].dstport].append(get_pid(packet[protocol].dstport))
     print(downStream)
     print(upStream)
-
-
-
-

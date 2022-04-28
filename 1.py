@@ -39,8 +39,6 @@ def get_pid(port):
         print(data)
         return data[0]
 
-
-
 capture=pyshark.LiveCapture(
     bpf_filter=filter_string,
     interface=interface_name
